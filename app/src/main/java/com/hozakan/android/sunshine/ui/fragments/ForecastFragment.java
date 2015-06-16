@@ -1,11 +1,15 @@
-package com.hozakan.android.sunshine;
+package com.hozakan.android.sunshine.ui.fragments;
 
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.view.*;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import com.hozakan.android.sunshine.R;
 import com.hozakan.android.sunshine.tasks.FetchWeatherTask;
+import com.hozakan.android.sunshine.ui.activities.DetailActivity;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,7 +47,18 @@ public class ForecastFragment extends Fragment implements FetchWeatherTask.Fetch
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        refreshData();
+        mList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                startActivity(DetailActivity.createIntent(getActivity(), mAdapter.getItem(position)));
+            }
+        });
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        updateWeather();
     }
 
     @Override
@@ -56,7 +71,7 @@ public class ForecastFragment extends Fragment implements FetchWeatherTask.Fetch
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_refresh:
-                refreshData();
+                updateWeather();
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -77,8 +92,8 @@ public class ForecastFragment extends Fragment implements FetchWeatherTask.Fetch
 
     }
 
-    private void refreshData() {
-        FetchWeatherTask task = new FetchWeatherTask(this);
-        task.execute("94043");
+    private void updateWeather() {
+        FetchWeatherTask task = new FetchWeatherTask(getActivity(), this);
+        task.execute(PreferenceManager.getDefaultSharedPreferences(getActivity()).getString(getActivity().getString(R.string.pref_location_key), getActivity().getString(R.string.pref_location_default_value)));
     }
 }

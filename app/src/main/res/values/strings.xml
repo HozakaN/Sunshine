@@ -1,8 +1,44 @@
 <resources>
     <string name="app_name">Sunshine</string>
     <string name="hello_world">Hello world!</string>
+
+    <!-- activitiy titles -->
+    <string name="title_activity_detail">Detail</string>
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- menus -->
+    <!-- main menu -->
     <string name="action_settings">Settings</string>
+    <string name="action_show_map">Show map</string>
+
+    <!-- detail menu -->
+    <string name="action_share">Share</string>
 
     <!-- forecast screen -->
     <string name="refresh">refresh</string>
+
+    <!-- settings screen -->
+    <string name="pref_location_key" translatable="false">location</string>
+    <string name="pref_location_label">Location</string>
+    <string name="pref_location_default_value" translatable="false">94043</string>
+
+    <string name="pref_unit_metric">Metric</string>
+    <string name="pref_unit_imperial">Imperial</string>
+    <string name="pref_unit_metric_value">metric</string>
+    <string name="pref_unit_imperial_value">imperial</string>
+
+    <string name="pref_unit_key">unit</string>
+    <string name="pref_unit_label">Unit</string>
+    <string name="pref_unit_default_value">@string/pref_unit_metric_value</string>
+
+    <array name="pref_unit_entries">
+        <item>@string/pref_unit_metric</item>
+        <item>@string/pref_unit_imperial</item>
+    </array>
+
+    <array name="pref_unit_entryValues">
+        <item>@string/pref_unit_metric_value</item>
+        <item>@string/pref_unit_imperial_value</item>
+    </array>
+
 </resources>

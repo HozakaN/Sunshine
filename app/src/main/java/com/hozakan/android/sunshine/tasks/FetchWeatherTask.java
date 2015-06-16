@@ -1,9 +1,13 @@
 package com.hozakan.android.sunshine.tasks;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.text.format.Time;
 import android.util.Log;
+import com.hozakan.android.sunshine.R;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -39,8 +43,10 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
         void onWeatherTaskError();
     }
     private final WeakReference<FetchWeatherTaskCallback> mCallback;
+    private final Context mContext;
 
-    public FetchWeatherTask(FetchWeatherTaskCallback mCallback) {
+    public FetchWeatherTask(Context context, FetchWeatherTaskCallback mCallback) {
+        this.mContext = context.getApplicationContext();
         this.mCallback = new WeakReference<>(mCallback);
     }
 
@@ -151,6 +157,15 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
      * Prepare the weather high/lows for presentation.
      */
     private String formatHighLows(double high, double low) {
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mContext);
+        String unitType = preferences.getString(mContext.getString(R.string.pref_unit_key), mContext.getString(R.string.pref_unit_default_value));
+
+        if (unitType.equals(mContext.getString(R.string.pref_unit_imperial_value))) {
+            high = (high * 1.8) + 32;
+            low = (low * 1.8) + 32;
+        }
+
         // For presentation, assume the user doesn't care about tenths of a degree.
         long roundedHigh = Math.round(high);
         long roundedLow = Math.round(low);
