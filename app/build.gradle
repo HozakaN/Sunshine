@@ -5,7 +5,7 @@ android {
     buildToolsVersion "21.1.2"
 
     defaultConfig {
-        applicationId "com.hozakan.android.sunsigne"
+        applicationId "com.hozakan.android.sunshine"
         minSdkVersion 10
         targetSdkVersion 21
         versionCode 1

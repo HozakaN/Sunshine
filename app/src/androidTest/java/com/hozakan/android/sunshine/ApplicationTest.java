@@ -1,4 +1,4 @@
-package com.hozakan.android.sunsigne;
+package com.hozakan.android.sunshine;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;
