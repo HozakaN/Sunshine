@@ -93,6 +93,8 @@ public class TestUtilities extends AndroidTestCase {
         // Verify we got a row back.
         assertTrue("Error: Failure to insert North Pole Location Values", locationRowId != -1);
 
+        db.close();
+
         return locationRowId;
     }
 

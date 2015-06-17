@@ -16,9 +16,13 @@
  */
 package com.hozakan.android.sunshine;
 
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.DatabaseUtils;
+import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
@@ -26,6 +30,7 @@ import android.text.format.Time;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 
+import com.hozakan.android.sunshine.data.WeatherContract;
 import com.hozakan.android.sunshine.data.WeatherContract.WeatherEntry;
 
 import org.json.JSONArray;
@@ -110,7 +115,22 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
         // Students: First, check if the location with this city name exists in the db
         // If it exists, return the current ID
         // Otherwise, insert it using the content resolver and the base URI
-        return -1;
+//        WeatherContract.LocationEntry.
+        String selection = WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING + " = ?";
+        String[] selectionArgs = new String[] {locationSetting};
+        Cursor cursor = mContext.getContentResolver().query(WeatherContract.LocationEntry.CONTENT_URI, new String[] {WeatherContract.LocationEntry._ID}, selection, selectionArgs, null);
+        long locationId;
+        if (cursor.moveToFirst()) {
+            ContentValues cv = new ContentValues();
+            DatabaseUtils.cursorRowToContentValues(cursor, cv);
+            locationId = cv.getAsLong(WeatherContract.LocationEntry._ID);
+        } else {
+            locationId = ContentUris.parseId(
+                    mContext.getContentResolver().insert(
+                            WeatherContract.LocationEntry.CONTENT_URI,
+                            WeatherContract.LocationEntry.createContentValues(locationSetting, cityName, lat, lon)));
+        }
+        return locationId;
     }
 
     /*
@@ -191,7 +211,7 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
             long locationId = addLocation(locationSetting, cityName, cityLatitude, cityLongitude);
 
             // Insert the new weather information into the database
-            Vector<ContentValues> cVVector = new Vector<ContentValues>(weatherArray.length());
+            Vector<ContentValues> cVVector = new Vector<>(weatherArray.length());
 
             // OWM returns daily forecasts based upon the local time of the city that is being
             // asked for, which means that we need to know the GMT offset to translate this data
@@ -267,6 +287,7 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
             // add to database
             if ( cVVector.size() > 0 ) {
                 // Student: call bulkInsert to add the weatherEntries to the database here
+                mContext.getContentResolver().bulkInsert(WeatherEntry.CONTENT_URI, cVVector.toArray(new ContentValues[] {}));
             }
 
             // Sort order:  Ascending, by date.
@@ -276,17 +297,17 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
 
             // Students: Uncomment the next lines to display what what you stored in the bulkInsert
 
-//            Cursor cur = mContext.getContentResolver().query(weatherForLocationUri,
-//                    null, null, null, sortOrder);
-//
-//            cVVector = new Vector<ContentValues>(cur.getCount());
-//            if ( cur.moveToFirst() ) {
-//                do {
-//                    ContentValues cv = new ContentValues();
-//                    DatabaseUtils.cursorRowToContentValues(cur, cv);
-//                    cVVector.add(cv);
-//                } while (cur.moveToNext());
-//            }
+            Cursor cur = mContext.getContentResolver().query(weatherForLocationUri,
+                    null, null, null, sortOrder);
+
+            cVVector = new Vector<>(cur.getCount());
+            if ( cur.moveToFirst() ) {
+                do {
+                    ContentValues cv = new ContentValues();
+                    DatabaseUtils.cursorRowToContentValues(cur, cv);
+                    cVVector.add(cv);
+                } while (cur.moveToNext());
+            }
 
             Log.d(LOG_TAG, "FetchWeatherTask Complete. " + cVVector.size() + " Inserted");
 

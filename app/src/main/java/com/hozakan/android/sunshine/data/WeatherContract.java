@@ -17,6 +17,7 @@ package com.hozakan.android.sunshine.data;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
+import android.content.ContentValues;
 import android.net.Uri;
 import android.provider.BaseColumns;
 import android.text.format.Time;
@@ -77,6 +78,15 @@ public class WeatherContract {
 
         public static Uri buildLocationUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
+
+        public static ContentValues createContentValues(String locationSetting, String cityName, double lat, double lon) {
+            ContentValues values = new ContentValues(4);
+            values.put(COLUMN_LOCATION_SETTING, locationSetting);
+            values.put(COLUMN_CITY_NAME, cityName);
+            values.put(COLUMN_COORD_LAT, lat);
+            values.put(COLUMN_COORD_LONG, lon);
+            return values;
         }
     }
 
