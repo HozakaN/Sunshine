@@ -93,7 +93,7 @@ public class ForecastFragment extends Fragment implements FetchWeatherTask.Fetch
     }
 
     private void updateWeather() {
-        FetchWeatherTask task = new FetchWeatherTask(getActivity(), this);
+        com.hozakan.android.sunshine.FetchWeatherTask task = new com.hozakan.android.sunshine.FetchWeatherTask(getActivity(), mAdapter);
         task.execute(PreferenceManager.getDefaultSharedPreferences(getActivity()).getString(getActivity().getString(R.string.pref_location_key), getActivity().getString(R.string.pref_location_default_value)));
     }
 }
