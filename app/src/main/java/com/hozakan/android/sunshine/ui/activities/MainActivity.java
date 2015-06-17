@@ -10,15 +10,36 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import com.hozakan.android.sunshine.R;
+import com.hozakan.android.sunshine.tools.Utility;
+import com.hozakan.android.sunshine.ui.fragments.ForecastFragment;
 
 public class MainActivity extends AppCompatActivity {
+
+    private static final String FORECASTFRAGMENT_TAG = "FORECASTFRAGMENT_TAG";
+    private String mLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        mLocation = preferences.getString(getString(R.string.pref_location_key), getString(R.string.pref_location_default_value));
+
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction().replace(R.id.container, new ForecastFragment(), FORECASTFRAGMENT_TAG).commit();
+        }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        final String lastLocation = Utility.getPreferredLocation(this);
+        if (!lastLocation.equals(mLocation)) {
+            ((ForecastFragment)getSupportFragmentManager().findFragmentByTag(FORECASTFRAGMENT_TAG)).onLocationChanged();
+            mLocation = lastLocation;
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -42,10 +63,8 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    public void showMap() {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        String location = preferences.getString(getString(R.string.pref_location_key), getString(R.string.pref_location_default_value));
-        Uri geoLocation = Uri.parse("geo:0,0?").buildUpon().appendQueryParameter("q", location).build();
+    private void showMap() {
+        Uri geoLocation = Uri.parse("geo:0,0?").buildUpon().appendQueryParameter("q", mLocation).build();
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setData(geoLocation);
         if (intent.resolveActivity(getPackageManager()) != null) {

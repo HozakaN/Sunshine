@@ -1,5 +1,10 @@
 package com.hozakan.android.sunshine.tools;
 
+import android.content.Context;
+import android.database.Cursor;
+
+import com.hozakan.android.sunshine.data.WeatherContract;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -16,6 +21,30 @@ public class WeatherDataParser {
         // TODO: add parsing code here
         JSONObject object = new JSONObject(weatherJsonStr);
         return object.getJSONArray("list").getJSONObject(dayIndex).getJSONObject("temp").getDouble("max");
+    }
+
+    /*
+        This is ported from FetchWeatherTask --- but now we go straight from the cursor to the
+        string.
+     */
+    public static String convertCursorRowToUXFormat(Context context, Cursor cursor) {
+
+        String highAndLow = formatHighLows(context,
+                cursor.getDouble(WeatherContract.COL_WEATHER_MAX_TEMP),
+                cursor.getDouble(WeatherContract.COL_WEATHER_MIN_TEMP));
+
+        return Utility.formatDate(cursor.getLong(WeatherContract.COL_WEATHER_DATE)) +
+                " - " + cursor.getString(WeatherContract.COL_WEATHER_DESC) +
+                " - " + highAndLow;
+    }
+
+    /**
+     * Prepare the weather high/lows for presentation.
+     */
+    private static String formatHighLows(Context context, double high, double low) {
+        boolean isMetric = Utility.isMetric(context);
+        String highLowStr = Utility.formatTemperature(high, isMetric) + "/" + Utility.formatTemperature(low, isMetric);
+        return highLowStr;
     }
 
 }
