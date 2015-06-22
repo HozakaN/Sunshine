@@ -10,33 +10,60 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import com.hozakan.android.sunshine.R;
+import com.hozakan.android.sunshine.data.WeatherContract;
 import com.hozakan.android.sunshine.tools.Utility;
+import com.hozakan.android.sunshine.ui.fragments.DetailFragment;
 import com.hozakan.android.sunshine.ui.fragments.ForecastFragment;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ForecastFragment.ForecastFragmentCallback {
 
     private static final String FORECASTFRAGMENT_TAG = "FORECASTFRAGMENT_TAG";
+    private static final String DETAILFRAGMENT_TAG = "DETAILFRAGMENT_TAG";
+
+    //model attributes
     private String mLocation;
+
+    //display logic
+    private boolean mTwoPane;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        if (findViewById(R.id.weather_detail_container) != null) {
+            mTwoPane = true;
+
+//            if (savedInstanceState == null) {
+//                getSupportFragmentManager().beginTransaction()
+//                        .replace(R.id.weather_detail_container, DetailFragment.newInstance(null), DETAILFRAGMENT_TAG)
+//                        .commit();
+//            }
+        } else {
+            mTwoPane = false;
+//            getSupportActionBar().setElevation(0f);
+        }
+
+        ForecastFragment ff = (ForecastFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_forecast);
+        if (ff != null) {
+            ff.setUseTodayLayout(!mTwoPane);
+            ff.setTwoPage(mTwoPane);
+        }
+
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         mLocation = preferences.getString(getString(R.string.pref_location_key), getString(R.string.pref_location_default_value));
-
-        if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction().replace(R.id.container, new ForecastFragment(), FORECASTFRAGMENT_TAG).commit();
-        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         final String lastLocation = Utility.getPreferredLocation(this);
-        if (!lastLocation.equals(mLocation)) {
-            ((ForecastFragment)getSupportFragmentManager().findFragmentByTag(FORECASTFRAGMENT_TAG)).onLocationChanged();
+        if (lastLocation != null && !lastLocation.equals(mLocation)) {
+            ((ForecastFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_forecast)).onLocationChanged();
+            DetailFragment df = (DetailFragment) getSupportFragmentManager().findFragmentByTag(DETAILFRAGMENT_TAG);
+            if (df != null) {
+                df.onLocationChanged(lastLocation);
+            }
             mLocation = lastLocation;
         }
     }
@@ -61,6 +88,24 @@ public class MainActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
         }
         return true;
+    }
+
+    @Override
+    public void onItemSelected(long date) {
+        if (!mTwoPane) {
+            Intent intent = DetailActivity.createIntent(this, date);
+
+            startActivity(intent);
+        } else {
+            DetailFragment df = (DetailFragment) getSupportFragmentManager().findFragmentByTag(DETAILFRAGMENT_TAG);
+            if (df == null) {
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.weather_detail_container, DetailFragment.newInstance(date), DETAILFRAGMENT_TAG)
+                        .commit();
+            } else {
+                df.onDateChanged(date);
+            }
+        }
     }
 
     private void showMap() {

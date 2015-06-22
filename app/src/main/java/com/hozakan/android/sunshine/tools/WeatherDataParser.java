@@ -43,7 +43,7 @@ public class WeatherDataParser {
      */
     private static String formatHighLows(Context context, double high, double low) {
         boolean isMetric = Utility.isMetric(context);
-        String highLowStr = Utility.formatTemperature(high, isMetric) + "/" + Utility.formatTemperature(low, isMetric);
+        String highLowStr = Utility.formatTemperature(context, high, isMetric) + "/" + Utility.formatTemperature(context, low, isMetric);
         return highLowStr;
     }
 

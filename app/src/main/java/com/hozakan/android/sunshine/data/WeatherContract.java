@@ -21,6 +21,7 @@ import android.content.ContentValues;
 import android.net.Uri;
 import android.provider.BaseColumns;
 import android.text.format.Time;
+import com.hozakan.android.sunshine.R;
 
 /**
  * Defines table and column names for the weather database.
@@ -52,15 +53,19 @@ public class WeatherContract {
             // On the one hand, that's annoying.  On the other, you can search the weather table
             // using the location set by the user, which is only in the Location table.
             // So the convenience is worth it.
-            WeatherContract.WeatherEntry.TABLE_NAME + "." + WeatherContract.WeatherEntry._ID,
-            WeatherContract.WeatherEntry.COLUMN_DATE,
-            WeatherContract.WeatherEntry.COLUMN_SHORT_DESC,
-            WeatherContract.WeatherEntry.COLUMN_MAX_TEMP,
-            WeatherContract.WeatherEntry.COLUMN_MIN_TEMP,
-            WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING,
-            WeatherContract.WeatherEntry.COLUMN_WEATHER_ID,
-            WeatherContract.LocationEntry.COLUMN_COORD_LAT,
-            WeatherContract.LocationEntry.COLUMN_COORD_LONG
+            WeatherEntry.TABLE_NAME + "." + WeatherEntry._ID,
+            WeatherEntry.COLUMN_DATE,
+            WeatherEntry.COLUMN_SHORT_DESC,
+            WeatherEntry.COLUMN_MAX_TEMP,
+            WeatherEntry.COLUMN_MIN_TEMP,
+            LocationEntry.COLUMN_LOCATION_SETTING,
+            WeatherEntry.COLUMN_WEATHER_ID,
+            LocationEntry.COLUMN_COORD_LAT,
+            LocationEntry.COLUMN_COORD_LONG,
+            WeatherEntry.COLUMN_HUMIDITY,
+            WeatherEntry.COLUMN_WIND_SPEED,
+            WeatherEntry.COLUMN_PRESSURE,
+            WeatherEntry.COLUMN_DEGREES
     };
 
     // These indices are tied to FORECAST_COLUMNS.  If FORECAST_COLUMNS changes, these
@@ -74,6 +79,10 @@ public class WeatherContract {
     public static final int COL_WEATHER_CONDITION_ID = 6;
     public static final int COL_COORD_LAT = 7;
     public static final int COL_COORD_LONG = 8;
+    public static final int COL_WEATHER_HUMIDITY = 9;
+    public static final int COL_WEATHER_WIND = 10;
+    public static final int COL_WEATHER_PRESSURE = 11;
+    public static final int COL_WEATHER_DEGREES = 12;
 
     // To make it easy to query for the exact date, we normalize all dates that go into
     // the database to the start of the the Julian day at UTC.

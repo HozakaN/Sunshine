@@ -1,13 +1,16 @@
 package com.hozakan.android.sunshine.ui.activities;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.view.KeyEvent;
 import com.hozakan.android.sunshine.R;
 
@@ -74,4 +77,11 @@ public class SettingsActivity extends PreferenceActivity
         }
         return true;
     }
+
+    //TODO check what it does pre-lollipop
+//    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+//    @Override
+//    public Intent getParentActivityIntent() {
+//        return super.getParentActivityIntent().addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//    }
 }
