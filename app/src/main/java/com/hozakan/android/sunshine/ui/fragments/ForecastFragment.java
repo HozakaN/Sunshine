@@ -2,12 +2,10 @@ package com.hozakan.android.sunshine.ui.fragments;
 
 import android.app.Activity;
 import android.content.ContentValues;
-import android.content.Intent;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -24,16 +22,13 @@ import android.widget.ListView;
 import com.hozakan.android.sunshine.ForecastAdapter;
 import com.hozakan.android.sunshine.R;
 import com.hozakan.android.sunshine.data.WeatherContract;
-import com.hozakan.android.sunshine.tasks.FetchWeatherTask;
+import com.hozakan.android.sunshine.sync.SunshineSyncAdapter;
 import com.hozakan.android.sunshine.tools.Utility;
-import com.hozakan.android.sunshine.ui.activities.DetailActivity;
-
-import java.security.cert.PolicyQualifierInfo;
 
 /**
  * A placeholder fragment containing a simple view.
  */
-public class ForecastFragment extends Fragment implements FetchWeatherTask.FetchWeatherTaskCallback, LoaderManager.LoaderCallbacks<Cursor> {
+public class ForecastFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String TAG = ForecastFragment.class.getSimpleName();
 
@@ -78,6 +73,12 @@ public class ForecastFragment extends Fragment implements FetchWeatherTask.Fetch
     }
 
     @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        getLoaderManager().initLoader(LOADER_ID, null, this);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
@@ -99,10 +100,10 @@ public class ForecastFragment extends Fragment implements FetchWeatherTask.Fetch
         Uri weatherForLocationUri = WeatherContract.WeatherEntry.buildWeatherLocationWithStartDate(
                 locationSetting, System.currentTimeMillis());
 
-        Cursor cur = getActivity().getContentResolver().query(weatherForLocationUri,
-                null, null, null, sortOrder);
+//        Cursor cur = getActivity().getContentResolver().query(weatherForLocationUri,
+//                null, null, null, sortOrder);
 
-        mAdapter = new ForecastAdapter(getActivity(), cur, 0);
+        mAdapter = new ForecastAdapter(getActivity(), null, 0);
         mAdapter.setUseTodayLayout(mUseTodayLayout);
         mList.setAdapter(mAdapter);
         mList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -176,22 +177,6 @@ public class ForecastFragment extends Fragment implements FetchWeatherTask.Fetch
             outState.putInt(POSITION_KEY, mPosition);
         }
     }
-
-    @Override
-    public void onWeatherTaskEnded(String[] forecast) {
-//        mAdapter.setNotifyOnChange(false);
-//        mAdapter.clear();
-//        for (int i = 0; i < forecast.length; i++) {
-//            mAdapter.add(forecast[i]);
-//        }
-//        mAdapter.notifyDataSetChanged();
-    }
-
-    @Override
-    public void onWeatherTaskError() {
-
-    }
-
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         String location = Utility.getPreferredLocation(getActivity());
@@ -211,7 +196,9 @@ public class ForecastFragment extends Fragment implements FetchWeatherTask.Fetch
         mAdapter.swapCursor(data);
         if (mPosition != ListView.INVALID_POSITION && mAdapter.getCount() > mPosition) {
 //            mList.setSelection(mPosition);
-            setSelectionForTwoPaneMode(mPosition);
+            if (mTwoPage) {
+                setSelectionForTwoPaneMode(mPosition);
+            }
             mList.smoothScrollToPosition(mPosition);
         } else if (mTwoPage) {
             setSelectionForTwoPaneMode(0);
@@ -241,8 +228,17 @@ public class ForecastFragment extends Fragment implements FetchWeatherTask.Fetch
     }
 
     private void updateWeather() {
-        com.hozakan.android.sunshine.FetchWeatherTask task = new com.hozakan.android.sunshine.FetchWeatherTask(getActivity());
-        task.execute(PreferenceManager.getDefaultSharedPreferences(getActivity()).getString(getActivity().getString(R.string.pref_location_key), getActivity().getString(R.string.pref_location_default_value)));
+//        com.hozakan.android.sunshine.FetchWeatherTask task = new com.hozakan.android.sunshine.FetchWeatherTask(getActivity());
+//        task.execute(PreferenceManager.getDefaultSharedPreferences(getActivity()).getString(getActivity().getString(R.string.pref_location_key), getActivity().getString(R.string.pref_location_default_value)));
+//        Intent serviceIntent = SunshineService.createIntent(
+//                getActivity(), Utility.getPreferredLocation(getActivity()));
+//        getActivity().startService(serviceIntent);
+//        AlarmManager am = (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
+//        Intent intent = SunshineService.AlarmReceiver.createIntent(getActivity(), Utility.getPreferredLocation(getActivity()));
+//        PendingIntent pIntent = PendingIntent.getBroadcast(getActivity(), 0, intent, PendingIntent.FLAG_ONE_SHOT);
+//
+//        am.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 5000, pIntent);
+        SunshineSyncAdapter.syncImmediately(getActivity());
     }
 
     private void setSelectionForTwoPaneMode(int position) {

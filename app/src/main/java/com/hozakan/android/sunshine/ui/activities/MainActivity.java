@@ -3,6 +3,7 @@ package com.hozakan.android.sunshine.ui.activities;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -11,6 +12,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import com.hozakan.android.sunshine.R;
 import com.hozakan.android.sunshine.data.WeatherContract;
+import com.hozakan.android.sunshine.sync.SunshineSyncAdapter;
 import com.hozakan.android.sunshine.tools.Utility;
 import com.hozakan.android.sunshine.ui.fragments.DetailFragment;
 import com.hozakan.android.sunshine.ui.fragments.ForecastFragment;
@@ -52,6 +54,8 @@ public class MainActivity extends AppCompatActivity implements ForecastFragment.
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         mLocation = preferences.getString(getString(R.string.pref_location_key), getString(R.string.pref_location_default_value));
+
+        SunshineSyncAdapter.initializeSyncAdapter(this);
     }
 
     @Override
@@ -91,7 +95,7 @@ public class MainActivity extends AppCompatActivity implements ForecastFragment.
     }
 
     @Override
-    public void onItemSelected(long date) {
+    public void onItemSelected(final long date) {
         if (!mTwoPane) {
             Intent intent = DetailActivity.createIntent(this, date);
 
@@ -99,9 +103,14 @@ public class MainActivity extends AppCompatActivity implements ForecastFragment.
         } else {
             DetailFragment df = (DetailFragment) getSupportFragmentManager().findFragmentByTag(DETAILFRAGMENT_TAG);
             if (df == null) {
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.weather_detail_container, DetailFragment.newInstance(date), DETAILFRAGMENT_TAG)
-                        .commit();
+                new Handler().post(new Runnable() {
+                    @Override
+                    public void run() {
+                        getSupportFragmentManager().beginTransaction()
+                                .replace(R.id.weather_detail_container, DetailFragment.newInstance(date), DETAILFRAGMENT_TAG)
+                                .commit();
+                    }
+                });
             } else {
                 df.onDateChanged(date);
             }

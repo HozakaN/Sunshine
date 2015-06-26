@@ -2,6 +2,11 @@
     <string name="app_name">Sunshine</string>
     <string name="hello_world">Hello world!</string>
 
+    <!-- Account type (for sync-adapter authenticator) -->
+    <!-- SyncAdapter related -->
+    <string name="sync_account_type">sunshine.hozakan.com</string>
+    <string name="content_authority">com.hozakan.android.sunshine</string>
+
     <!-- general -->
     <!-- Date label when displaying today's weather forecast [CHAR LIMIT=20] -->
     <string name="today">Today</string>
