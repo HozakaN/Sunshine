@@ -25,6 +25,11 @@ public class Utility {
                 .equals(context.getString(R.string.pref_unit_metric_value));
     }
 
+    public static boolean areNotificationsActivated(Context context) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        return prefs.getBoolean(context.getString(R.string.pref_notifications_key), true);
+    }
+
     public static String formatTemperature(Context context, double temperature, boolean isMetric) {
         double temp;
         if ( !isMetric ) {

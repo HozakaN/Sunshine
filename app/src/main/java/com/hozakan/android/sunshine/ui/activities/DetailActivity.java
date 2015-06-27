@@ -14,8 +14,6 @@ public class DetailActivity extends AppCompatActivity {
 
     private static final String EXTRA_DATE_KEY = "EXTRA_DATE_KEY";
 
-    private ShareActionProvider mShareActionProvider;
-
     public static Intent createIntent(Context context, long date) {
         Intent intent = new Intent(context, DetailActivity.class);
         intent.putExtra(EXTRA_DATE_KEY, date);

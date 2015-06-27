@@ -23,8 +23,13 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.util.Log;
+
+import java.util.Date;
 
 public class WeatherProvider extends ContentProvider {
+
+    private static final String TAG = WeatherProvider.class.getSimpleName();
 
     // The URI Matcher used by this content provider.
     private static UriMatcher sUriMatcher = buildUriMatcher();
@@ -304,6 +309,10 @@ public class WeatherProvider extends ContentProvider {
         }
     }
 
+    private long normalizeDate(long date) {
+        return WeatherContract.normalizeDate(date);
+    }
+
     @Override
     public int update(
             Uri uri, ContentValues values, String selection, String[] selectionArgs) {
@@ -341,6 +350,7 @@ public class WeatherProvider extends ContentProvider {
                 db.beginTransaction();
                 int returnCount = 0;
                 try {
+//                    deleteOldWeatherData(db);
                     for (ContentValues value : values) {
                         normalizeDate(value);
                         long _id = db.insert(WeatherContract.WeatherEntry.TABLE_NAME, null, value);
@@ -357,6 +367,13 @@ public class WeatherProvider extends ContentProvider {
             default:
                 return super.bulkInsert(uri, values);
         }
+    }
+
+    private void deleteOldWeatherData(SQLiteDatabase writableDb) {
+        final String whereClause = WeatherContract.WeatherEntry.COLUMN_DATE + " < ?";
+        final String[] whereArgs = new String[] { String.valueOf(normalizeDate(new Date().getTime())) };
+        int nbDeleted = writableDb.delete(WeatherContract.WeatherEntry.TABLE_NAME, whereClause, whereArgs);
+        Log.d(TAG, String.format("%d row(s) deleted", nbDeleted));
     }
 
     // You do not need to call this method. This is a method specifically to assist the testing
